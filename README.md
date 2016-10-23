@@ -6,13 +6,26 @@ Siv3D Game Jam 第17回 テーマ「音楽アプリ」の投稿作品です．
 
 好きな音声ファイルをウィンドウにドラッグ＆ドロップしてみてください．
 
+
 ## スクリーンショット
+
+v1.1 - LPF/HPF を切り替えられるように．
+
+![ss2](ss2.png)
+
+
+v1.0 - 公開
+
 ![ss1](ss.png)
 
+
 ## 動画
+
 * <https://www.youtube.com/watch?v=fs1_sS7qdHo>
 
+
 ## 操作
+
 * オーディオファイルのドロップ： ファイルの読み込み・再生
 * Left / Right キー： カットオフ周波数の増減
 * Down / Up キー： Q 値の増減
@@ -20,8 +33,13 @@ Siv3D Game Jam 第17回 テーマ「音楽アプリ」の投稿作品です．
 * Enter キー： LPF / HPF の切り替え
 * シークバー（画面上部）のクリック： シーク
 
+
 ## ダウンロード
+
 * <https://github.com/voidproc/realtime_filter/releases/download/v1.1/realtime_filter.zip> (x86版)
+* <https://github.com/voidproc/realtime_filter/releases/download/v1.0/realtime_filter.zip> (x86版)
+
 
 ## 参考
+
 * <http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt>
