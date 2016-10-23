@@ -21,7 +21,7 @@ Siv3D Game Jam 第17回 テーマ「音楽アプリ」の投稿作品です．
 * シークバー（画面上部）のクリック： シーク
 
 ## ダウンロード
-* <https://github.com/voidproc/realtime_filter/releases/download/v1.0/realtime_filter.zip> (x86版)
+* <https://github.com/voidproc/realtime_filter/releases/download/v1.1/realtime_filter.zip> (x86版)
 
 ## 参考
 * <http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt>
