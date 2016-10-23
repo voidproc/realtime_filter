@@ -15,87 +15,87 @@
 
 struct Filter
 {
-    double k0, k1, k2, k3, k4;
-    double s, q, f;
+	double k0, k1, k2, k3, k4;
+	double s, q, f;
 
-    Filter(const int samplingRate, const double f, const double q) : s(samplingRate), q(q), f(f)
-    {
-        calc();
-    }
+	Filter(const int samplingRate, const double f, const double q) : s(samplingRate), q(q), f(f)
+	{
+		calc();
+	}
 
-    void calc()
-    {
-        const double omg = 2.0_pi * f / s;
-        const double alpha = Sin(omg) / (2 * q);
+	void calc()
+	{
+		const double omg = 2.0_pi * f / s;
+		const double alpha = Sin(omg) / (2 * q);
 
-        const double b0 = (1 - Cos(omg)) / 2;
-        const double b1 = 1 - Cos(omg);
-        const double b2 = (1 - Cos(omg)) / 2;
-        const double a0 = 1 + alpha;
-        const double a1 = -2 * Cos(omg);
-        const double a2 = 1 - alpha;
+		const double b0 = (1 - Cos(omg)) / 2;
+		const double b1 = 1 - Cos(omg);
+		const double b2 = (1 - Cos(omg)) / 2;
+		const double a0 = 1 + alpha;
+		const double a1 = -2 * Cos(omg);
+		const double a2 = 1 - alpha;
 
-        k0 = b0 / a0;
-        k1 = b1 / a0;
-        k2 = b2 / a0;
-        k3 = -(a1 / a0);
-        k4 = -(a2 / a0);
-    }
+		k0 = b0 / a0;
+		k1 = b1 / a0;
+		k2 = b2 / a0;
+		k3 = -(a1 / a0);
+		k4 = -(a2 / a0);
+	}
 };
 
 
 struct OutputBuffer
 {
-    double yl1 = 0;
-    double yl2 = 0;
-    double yr1 = 0;
-    double yr2 = 0;
+	double yl1 = 0;
+	double yl2 = 0;
+	double yr1 = 0;
+	double yr2 = 0;
 };
 
 
 int32 filteredSampleLeft(const Wave& wave, const size_t pos, const Filter& filter, const OutputBuffer& out)
 {
-    int32 w1 = (pos > 0) ? wave[pos - 1].left : 0;
-    int32 w2 = (pos > 1) ? wave[pos - 2].left : 0;
+	int32 w1 = (pos > 0) ? wave[pos - 1].left : 0;
+	int32 w2 = (pos > 1) ? wave[pos - 2].left : 0;
 
-    int32 y = filter.k0 * wave[pos].left
-        + filter.k1 * w1
-        + filter.k2 * w2
-        + filter.k3 * out.yl1
-        + filter.k4 * out.yl2;
+	int32 y = filter.k0 * wave[pos].left
+		+ filter.k1 * w1
+		+ filter.k2 * w2
+		+ filter.k3 * out.yl1
+		+ filter.k4 * out.yl2;
 
-    return Clamp(y, -32768, 32767);
+	return Clamp(y, -32768, 32767);
 }
 
 int32 filteredSampleRight(const Wave& wave, const size_t pos, const Filter& filter, const OutputBuffer& out)
 {
-    int32 w1 = (pos > 0) ? wave[pos - 1].right : 0;
-    int32 w2 = (pos > 1) ? wave[pos - 2].right : 0;
+	int32 w1 = (pos > 0) ? wave[pos - 1].right : 0;
+	int32 w2 = (pos > 1) ? wave[pos - 2].right : 0;
 
-    int32 y = filter.k0 * wave[pos].right
-        + filter.k1 * w1
-        + filter.k2 * w2
-        + filter.k3 * out.yr1
-        + filter.k4 * out.yr2;
+	int32 y = filter.k0 * wave[pos].right
+		+ filter.k1 * w1
+		+ filter.k2 * w2
+		+ filter.k3 * out.yr1
+		+ filter.k4 * out.yr2;
 
-    return Clamp(y, -32768, 32767);
+	return Clamp(y, -32768, 32767);
 }
 
 void applyFilter(Sound& sound, Wave& wave, const Wave& waveOrig, const size_t start, const size_t length, const Filter& filter, OutputBuffer& out)
 {
-    for (size_t i = start; i < Min((int64)(start + length), sound.lengthSample()); i++)
-    {
-        const int32 yl = filteredSampleLeft(waveOrig, i, filter, out);
-        const int32 yr = filteredSampleRight(waveOrig, i, filter, out);
-        wave[i].left = yl;
-        wave[i].right = yr;
-        out.yl2 = out.yl1;
-        out.yl1 = yl;
-        out.yr2 = out.yr1;
-        out.yr1 = yr;
-    }
+	for (size_t i = start; i < Min((int64)(start + length), sound.lengthSample()); i++)
+	{
+		const int32 yl = filteredSampleLeft(waveOrig, i, filter, out);
+		const int32 yr = filteredSampleRight(waveOrig, i, filter, out);
+		wave[i].left = yl;
+		wave[i].right = yr;
+		out.yl2 = out.yl1;
+		out.yl1 = yl;
+		out.yr2 = out.yr1;
+		out.yr1 = yr;
+	}
 
-    sound.fill(start, &wave[start], length);
+	sound.fill(start, &wave[start], length);
 }
 
 
@@ -124,7 +124,7 @@ void Main()
 {
 	// Init Siv3D
 	Window::SetTitle(L"realtime_filter");
-    Window::Resize(640, 480);
+	Window::Resize(640, 480);
 
 	// Assets
 	Font fontHz(48, Typeface::Heavy);
@@ -142,15 +142,15 @@ void Main()
 	FilteredBlock block(wave.lengthSample, BufLen);
 
 	applyFilter(sound, wave, waveOrig, 0, BufLen, filter, out);
-    block[0] = true;
+	block[0] = true;
 
 	// Play default sound
-    //sound.play();
+	//sound.play();
 
 
 	while (System::Update())
 	{
-        const int64 pos = sound.streamPosSample();
+		const int64 pos = sound.streamPosSample();
 
 		// Play / Pause
 
@@ -168,37 +168,37 @@ void Main()
 
 		// Change filter freq.
 
-        if (Input::KeyLeft.pressed)
-        {
+		if (Input::KeyLeft.pressed)
+		{
 			filter.f -= 8;
-        }
+		}
 
-        if (Input::KeyRight.pressed)
-        {
+		if (Input::KeyRight.pressed)
+		{
 			filter.f += 8;
-        }
+		}
 
 		filter.f = Clamp(filter.f, 40.0, 5000.0);
 
 
 		// Change filter Q
 
-        if (Input::KeyDown.pressed)
-        {
+		if (Input::KeyDown.pressed)
+		{
 			filter.q -= 0.02;
-        }
+		}
 
-        if (Input::KeyUp.pressed)
-        {
+		if (Input::KeyUp.pressed)
+		{
 			filter.q += 0.02;
-        }
+		}
 
 		filter.q = Clamp(filter.q, 0.10, 10.00);
 
 
 		// Apply filter to next block
 
-        const int idx_block = ((pos + BufLen) % len) / BufLen;
+		const int idx_block = ((pos + BufLen) % len) / BufLen;
 
 		if ((Input::KeyLeft | Input::KeyRight | Input::KeyDown | Input::KeyUp).pressed)
 		{
@@ -211,10 +211,10 @@ void Main()
 			block[idx_block] = true;
 		}
 
-        if (!block[idx_block])
-        {
+		if (!block[idx_block])
+		{
 			size_t start = idx_block * BufLen;
-            applyFilter(sound, wave, waveOrig, start, BufLen, filter, out);
+			applyFilter(sound, wave, waveOrig, start, BufLen, filter, out);
 			block[idx_block] = true;
 		}
 
@@ -226,8 +226,8 @@ void Main()
 		const int wsize = Min(Window::Width(), Window::Height()) / 2;
 
 		// BG
-        Rect(Window::Width() / 2, Window::Height()).draw(ColorF(volL));
-        Rect(Window::Width() / 2, 0, Window::Width() / 2, Window::Height()).draw(ColorF(volR));
+		Rect(Window::Width() / 2, Window::Height()).draw(ColorF(volL));
+		Rect(Window::Width() / 2, 0, Window::Width() / 2, Window::Height()).draw(ColorF(volR));
 
 		// Volume circle
 		Graphics2D::SetBlendState(BlendState::Additive);
@@ -287,7 +287,7 @@ void Main()
 			sound.play();
 		}
 
-		
+
 		// FFT result
 
 		const auto fft = FFT::Analyze(sound);
@@ -298,5 +298,5 @@ void Main()
 
 			Rect((double)i / fft.length() * Window::Width(), Window::Height() - s * Window::Height() * 1.2, Max((double)i / fft.length(), 1.0), s * Window::Height() * 1.2).draw(Color(255, 50 + s * 80));
 		}
-    }
+	}
 }
