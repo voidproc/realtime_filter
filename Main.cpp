@@ -8,15 +8,23 @@
 // 操作：
 //     Left/Right : カットオフ周波数の増減
 //     Down/Up    : Q値の増減
+//     Enter      : LPF/HPFの切り替え
 //     Space      : 再生／一時停止
 //     オーディオファイルのドロップ : ファイルの読み込み・再生
 //     シークバー（画面上部）のクリック : シーク
 
 
+enum class FilterType
+{
+	LPF,
+	HPF,
+};
+
 struct Filter
 {
 	double k0, k1, k2, k3, k4;
 	double s, q, f;
+	FilterType type = FilterType::LPF;
 
 	Filter(const int samplingRate, const double f, const double q) : s(samplingRate), q(q), f(f)
 	{
@@ -28,9 +36,11 @@ struct Filter
 		const double omg = 2.0_pi * f / s;
 		const double alpha = Sin(omg) / (2 * q);
 
-		const double b0 = (1 - Cos(omg)) / 2;
-		const double b1 = 1 - Cos(omg);
-		const double b2 = (1 - Cos(omg)) / 2;
+		const double sign = (type == FilterType::HPF ? -1 : 1);
+
+		const double b0 = (1 - Cos(omg) * sign) / 2;
+		const double b1 = 1 * sign - Cos(omg);
+		const double b2 = (1 - Cos(omg) * sign) / 2;
 		const double a0 = 1 + alpha;
 		const double a1 = -2 * Cos(omg);
 		const double a2 = 1 - alpha;
@@ -129,6 +139,7 @@ void Main()
 	// Assets
 	Font fontHz(48, Typeface::Heavy);
 	Font fontQ(28, Typeface::Heavy);
+	Font fontType(128, Typeface::Black, FontStyle::Outline);
 	Wave wave(L"Example/風の丘.mp3");
 	Wave waveOrig(wave);
 	Sound sound(wave, SoundLoop::All);
@@ -196,6 +207,16 @@ void Main()
 		filter.q = Clamp(filter.q, 0.10, 10.00);
 
 
+		// Change filter type
+
+		if (Input::KeyEnter.clicked)
+		{
+			filter.type = ((filter.type == FilterType::LPF) ? FilterType::HPF : FilterType::LPF);
+			filter.calc();
+			block.reset();
+		}
+
+
 		// Apply filter to next block
 
 		const int idx_block = ((pos + BufLen) % len) / BufLen;
@@ -231,6 +252,7 @@ void Main()
 
 		// Volume circle
 		Graphics2D::SetBlendState(BlendState::Additive);
+		fontType(filter.type == FilterType::LPF ? L"LPF" : L"HPF").drawCenter(Window::Center(), Color(60));
 		Circle(Window::Center(), wsize * 0.1 + wsize * 1.2 * volL).drawArc(180_deg, 180_deg, 10, 0, Color(50 + 100 * volL));
 		Circle(Window::Center(), wsize * 0.1 + wsize * 1.2 * volR).drawArc(0_deg, 180_deg, 10, 0, Color(50 + 100 * volR));
 		Graphics2D::SetBlendState(BlendState::Default);
