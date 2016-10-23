@@ -9,6 +9,9 @@ Siv3D Game Jam 第17回 テーマ「音楽アプリ」の投稿作品です．
 ## スクリーンショット
 ![ss1](ss.png)
 
+## 動画
+* <https://www.youtube.com/watch?v=fs1_sS7qdHo>
+
 ## 操作
 * オーディオファイルのドロップ： ファイルの読み込み・再生
 * Left / Right キー： カットオフ周波数の増減
